@@ -11,102 +11,102 @@ pub type Expression = Box<dyn ExpressionTrait>;
 pub struct Ast {}
 
 impl Ast {
-    pub fn add(lhs: Expression, rhs:Expression) -> BinaryExpression {
-        BinaryExpression::new(
+    pub fn add(lhs: Expression, rhs:Expression) -> Box<BinaryExpression> {
+        Box::new(BinaryExpression::new(
             Operator::ADD,
             lhs,
             rhs
-        )
+        ))
     }
-    pub fn subtract(lhs: Expression, rhs: Expression) -> BinaryExpression {
-        BinaryExpression::new(
+    pub fn subtract(lhs: Expression, rhs: Expression) -> Box<BinaryExpression> {
+        Box::new(BinaryExpression::new(
             Operator::SUBTRACT,
             lhs,
             rhs
-        )
+        ))
     }
-    pub fn multiply(lhs: Expression, rhs: Expression) -> BinaryExpression {
-        BinaryExpression::new(
+    pub fn multiply(lhs: Expression, rhs: Expression) -> Box<BinaryExpression> {
+        Box::new(BinaryExpression::new(
             Operator::MULTIPLY,
             lhs,
             rhs
-        )
+        ))
     }
-    pub fn divide(lhs: Expression, rhs: Expression) -> BinaryExpression {
-        BinaryExpression::new(
+    pub fn divide(lhs: Expression, rhs: Expression) -> Box<BinaryExpression> {
+        Box::new(BinaryExpression::new(
             Operator::DIVIDE,
             lhs,
             rhs
-        )
+        ))
     }
-    pub fn less_than(lhs: Expression, rhs: Expression) -> BinaryExpression {
-        BinaryExpression::new(
+    pub fn less_than(lhs: Expression, rhs: Expression) -> Box<BinaryExpression> {
+        Box::new(BinaryExpression::new(
             Operator::LessThan,
             lhs,
             rhs
-        )
+        ))
     }
-    pub fn less_or_equal(lhs: Expression, rhs: Expression) -> BinaryExpression {
-        BinaryExpression::new(
+    pub fn less_or_equal(lhs: Expression, rhs: Expression) -> Box<BinaryExpression> {
+        Box::new(BinaryExpression::new(
             Operator::LessOrEqual,
             lhs,
             rhs
-        )
+        ))
     }
-    pub fn greater_than(lhs: Expression, rhs: Expression) -> BinaryExpression {
-        BinaryExpression::new(
+    pub fn greater_than(lhs: Expression, rhs: Expression) -> Box<BinaryExpression> {
+        Box::new(BinaryExpression::new(
             Operator::GreaterThan,
             lhs,
             rhs
-        )
+        ))
     }
-    pub fn greater_or_equal(lhs: Expression, rhs: Expression) -> BinaryExpression {
-        BinaryExpression::new(
+    pub fn greater_or_equal(lhs: Expression, rhs: Expression) -> Box<BinaryExpression> {
+        Box::new(BinaryExpression::new(
             Operator::GreaterOrEqual,
             lhs,
             rhs
-        )
+        ))
     }
-    pub fn equal_equal(lhs: Expression, rhs: Expression) -> BinaryExpression {
-        BinaryExpression::new(
+    pub fn equal_equal(lhs: Expression, rhs: Expression) -> Box<BinaryExpression> {
+        Box::new(BinaryExpression::new(
             Operator::EqualEqual,
             lhs,
             rhs
-        )
+        ))
     }
-    pub fn not_equal(lhs: Expression, rhs: Expression) -> BinaryExpression {
-        BinaryExpression::new(
+    pub fn not_equal(lhs: Expression, rhs: Expression) -> Box<BinaryExpression> {
+        Box::new(BinaryExpression::new(
             Operator::NotEqual,
             lhs,
             rhs
-        )
+        ))
     }
-    pub fn integer(value: i32) -> IntegerLiteral {
-        IntegerLiteral::new(value)
+    pub fn integer(value: i32) -> Box<IntegerLiteral> {
+        Box::new(IntegerLiteral::new(value))
     }
-    pub fn symbol(name: String) -> Identifier {
-        Identifier::new(name)
+    pub fn symbol(name: String) -> Box<Identifier> {
+        Box::new(Identifier::new(name))
     }
-    pub fn assignment(name: String, expression: Expression) -> Assignment {
-        Assignment::new(name, expression)
+    pub fn assignment(name: String, expression: Expression) -> Box<Assignment> {
+        Box::new(Assignment::new(name, expression))
     }
-    pub fn block(elements: LinkedList<Expression>) -> BlockExpression {
-        BlockExpression::new(elements)
+    pub fn block(elements: LinkedList<Expression>) -> Box<BlockExpression> {
+        Box::new(BlockExpression::new(elements))
     }
-    pub fn while_expr(condition: Expression, body: Expression) -> WhileExpression {
-        WhileExpression::new(condition, body)
+    pub fn while_expr(condition: Expression, body: Expression) -> Box<WhileExpression> {
+        Box::new(WhileExpression::new(condition, body))
     }
-    pub fn if_expr(condition: Expression, then_clause: Expression, else_clause: Option<Expression>) -> IfExpression {
-        IfExpression::new(condition, then_clause, else_clause)
+    pub fn if_expr(condition: Expression, then_clause: Expression, else_clause: Option<Expression>) -> Box<IfExpression> {
+        Box::new(IfExpression::new(condition, then_clause, else_clause))
     }
-    pub fn define_function(name: String, args: LinkedList<String>, body: Expression) -> FunctionDefinition {
-        FunctionDefinition::new(name, args, body)
+    pub fn define_function(name: String, args: LinkedList<String>, body: Expression) -> Box<FunctionDefinition> {
+        Box::new(FunctionDefinition::new(name, args, body))
     }
-    pub fn call(name: String, args: LinkedList<Expression>) -> FunctionCall {
-        FunctionCall::new(name, args)
+    pub fn call(name: String, args: LinkedList<Expression>) -> Box<FunctionCall> {
+        Box::new(FunctionCall::new(name, args))
     }
-    pub fn println(body: Expression) -> PrintlnExpression {
-        PrintlnExpression::new(body)
+    pub fn println(body: Expression) -> Box<PrintlnExpression> {
+        Box::new(PrintlnExpression::new(body))
     }
 }
 

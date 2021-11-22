@@ -41,36 +41,36 @@ mod tests {
 
     #[test]
     fn test_10_plus_20() {
-        let e: ast::Expression = Box::new(ast::Ast::add(
-            Box::new(ast::Ast::integer(10)),
-            Box::new(ast::Ast::integer(20))
-        ));
+        let e: ast::Expression = ast::Ast::add(
+            ast::Ast::integer(10),
+            ast::Ast::integer(20)
+        );
         let i = Interpreter::new();
         assert_eq!(30, i.interpret(&e));
     }
     #[test]
     fn test2() {
-        let e: ast::Expression = Box::new(ast::Ast::add(
-            Box::new(ast::Ast::integer(10)),
-            Box::new(ast::Ast::multiply(
-                Box::new(ast::Ast::integer(4)),
-                Box::new(ast::Ast::integer(8))
-            ))
-        ));
+        let e: ast::Expression = ast::Ast::add(
+            ast::Ast::integer(10),
+            ast::Ast::multiply(
+                ast::Ast::integer(4),
+                ast::Ast::integer(8)
+            )
+        );
         let i = Interpreter::new();
         assert_eq!(42, i.interpret(&e));
     }
     #[test]
     fn test_assignment() {
         let i = Interpreter::new();
-        let a: ast::Expression = Box::new(ast::Ast::assignment("a".to_string(), Box::new(ast::Ast::integer(10))));
+        let a: ast::Expression = ast::Ast::assignment("a".to_string(), ast::Ast::integer(10));
         i.interpret(&a);
-        let b: ast::Expression = Box::new(ast::Ast::assignment("b".to_string(), Box::new(ast::Ast::integer(20))));
+        let b: ast::Expression = ast::Ast::assignment("b".to_string(), ast::Ast::integer(20));
         i.interpret(&b);
-        let e: ast::Expression = Box::new(ast::Ast::add(
-            Box::new(ast::Ast::symbol("a".to_string())),
-            Box::new(ast::Ast::symbol("b".to_string()))
-        ));
+        let e: ast::Expression = ast::Ast::add(
+            ast::Ast::symbol("a".to_string()),
+            ast::Ast::symbol("b".to_string())
+        );
         
         assert_eq!(30, i.interpret(&e));
     }
@@ -78,58 +78,49 @@ mod tests {
     fn test_factorial() {
         let mut toplevels: LinkedList<Box<dyn ast::TopLevel>> = LinkedList::new();
         let mut fact_args: LinkedList<ast::Expression> = LinkedList::new();
-        fact_args.push_back(Box::new(ast::Ast::integer(5)));
+        fact_args.push_back(ast::Ast::integer(5));
         let mut block_list: LinkedList<ast::Expression> = LinkedList::new();
         block_list.push_back(
-            Box::new(
                 ast::Ast::call("fact".to_string(), fact_args)
-            )
         );
         let main = ast::Ast::define_function(
             "main".to_string(),
             LinkedList::new(),
-            Box::new(
                 ast::Ast::block(block_list)
-            )
         );
         let mut inner_fact_args: LinkedList<ast::Expression> = LinkedList::new();
         inner_fact_args.push_back(
-            Box::new(
                 ast::Ast::subtract(
-                    Box::new(ast::Ast::symbol("n".to_string())),
-                    Box::new(ast::Ast::integer(1))
-                )
+                    ast::Ast::symbol("n".to_string()),
+                    ast::Ast::integer(1)
             )
         );
         let mut block_list2: LinkedList<ast::Expression> = LinkedList::new();
         block_list2.push_back(
-                Box::new(ast::Ast::if_expr(
-                    Box::new(ast::Ast::less_than(
-                        Box::new(ast::Ast::symbol("n".to_string())),
-                        Box::new(ast::Ast::integer(2))
-                    )),
-                    Box::new(ast::Ast::integer(1)),
-                    Some(Box::new(
-                        ast::Ast::multiply(
-                            Box::new(ast::Ast::symbol("n".to_string())),
-                            Box::new(ast::Ast::call(
-                                "fact".to_string(),
-                                inner_fact_args
-                            ))
+            ast::Ast::if_expr(
+                ast::Ast::less_than(
+                    ast::Ast::symbol("n".to_string()),
+                    ast::Ast::integer(2)
+                ),
+                ast::Ast::integer(1),
+                Some(
+                    ast::Ast::multiply(
+                        ast::Ast::symbol("n".to_string()),
+                        ast::Ast::call(
+                            "fact".to_string(),
+                            inner_fact_args
                         )
-                    ))
+                    )
                 )
             )
         );
         let fact = ast::Ast::define_function(
             "fact".to_string(),
             LinkedList::from(["n".to_string()]),
-            Box::new(
                 ast::Ast::block(block_list2)
-            )
         );
-        toplevels.push_back(Box::new(main));
-        toplevels.push_back(Box::new(fact));
+        toplevels.push_back(main);
+        toplevels.push_back(fact);
         let mut i = Interpreter::new();
         let result = i.call_main(&ast::Program { definitions: toplevels });
         assert_eq!(120, result);
