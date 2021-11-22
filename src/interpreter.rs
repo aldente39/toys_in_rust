@@ -76,7 +76,7 @@ mod tests {
     }
     #[test]
     fn test_factorial() {
-        let mut toplevels: LinkedList<Box<dyn ast::TopLevel>> = LinkedList::new();
+        let mut toplevels: LinkedList<ast::TopLevel> = LinkedList::new();
         let mut fact_args: LinkedList<ast::Expression> = LinkedList::new();
         fact_args.push_back(ast::Ast::integer(5));
         let mut block_list: LinkedList<ast::Expression> = LinkedList::new();

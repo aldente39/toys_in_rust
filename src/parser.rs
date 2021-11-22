@@ -9,7 +9,7 @@ use std::collections::LinkedList;
 
 pub fn parse(contents: &String) -> ast::Program {
     let mut pairs = ToysParser::parse(Rule::program, contents).unwrap_or_else(|e| panic!("{}", e));
-    let mut toplevels: LinkedList<Box<dyn ast::TopLevel>> = LinkedList::new();
+    let mut toplevels: LinkedList<ast::TopLevel> = LinkedList::new();
     let pair = pairs.next().unwrap();
     match pair.as_rule() {
         Rule::program => {
@@ -36,7 +36,7 @@ pub fn parse_lines(contents: &String) -> LinkedList<ast::Expression> {
     lines
 }
 
-fn construct_toplevel_ast(pair: pest::iterators::Pair<Rule>) -> Box<dyn ast::TopLevel> {
+fn construct_toplevel_ast(pair: pest::iterators::Pair<Rule>) -> ast::TopLevel {
     match pair.as_rule() {
         Rule::topLevelDefinition => {
             construct_toplevel_ast(pair.into_inner().next().unwrap())

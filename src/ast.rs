@@ -7,6 +7,7 @@ use std::rc::Rc;
 use std::cell::RefCell;
 
 pub type Expression = Box<dyn ExpressionTrait>;
+pub type TopLevel = Box<dyn TopLevelTrait>;
 
 pub struct Ast {}
 
@@ -330,7 +331,7 @@ impl Environment {
 
 }
 
-pub trait TopLevel {
+pub trait TopLevelTrait {
     fn eval<'a>(
         &'a self,
         _variable_environment: &Rc<Environment>,
@@ -345,7 +346,7 @@ pub struct FunctionDefinition {
     args: LinkedList<String>,
     pub body: Expression,
 }
-impl TopLevel for FunctionDefinition {
+impl TopLevelTrait for FunctionDefinition {
     fn eval<'a>(&'a self, _v: &Rc<Environment>, f: &mut HashMap<String,  &'a FunctionDefinition>) -> i32 {
         f.insert(
             self.name.clone(),
@@ -368,7 +369,7 @@ pub struct GlobalVariableDefinition {
     name: String,
     body: Expression,
 }
-impl TopLevel for GlobalVariableDefinition {
+impl TopLevelTrait for GlobalVariableDefinition {
     fn eval(&self, v: &Rc<Environment>, f: &mut HashMap<String, &FunctionDefinition>) -> i32 {
         v.bindings.borrow_mut().insert(
             self.name.clone(),
@@ -420,7 +421,7 @@ impl FunctionCall {
 }
 
 pub struct Program {
-    pub definitions: LinkedList<Box<dyn TopLevel>>
+    pub definitions: LinkedList<TopLevel>
 }
 
 fn new_environment(e: &Rc<Environment>) -> Rc<Environment> {
