@@ -199,7 +199,7 @@ impl ExpressionTrait for Identifier {
     }
 }
 impl Identifier {
-    pub fn new(name: String) -> Self {
+    fn new(name: String) -> Self {
         Self {
             name: name,
         }
@@ -219,7 +219,7 @@ impl ExpressionTrait for BlockExpression {
     }
 }
 impl BlockExpression {
-    pub fn new(elements: LinkedList<Expression>) -> Self {
+    fn new(elements: LinkedList<Expression>) -> Self {
         Self {
             elements: elements,
         }
@@ -244,7 +244,7 @@ impl ExpressionTrait for WhileExpression {
     }
 }
 impl WhileExpression {
-    pub fn new(condition: Expression, body: Expression) -> Self {
+    fn new(condition: Expression, body: Expression) -> Self {
         Self {
             condition: condition,
             body: body,
@@ -271,7 +271,7 @@ impl ExpressionTrait for IfExpression {
     }
 }
 impl IfExpression {
-    pub fn new(condition: Expression, then_clause: Expression, else_clause: Option<Expression>) -> Self {
+    fn new(condition: Expression, then_clause: Expression, else_clause: Option<Expression>) -> Self {
         Self {
             condition: condition,
             then_clause: then_clause,
@@ -290,7 +290,7 @@ impl ExpressionTrait for PrintlnExpression {
     }
 }
 impl PrintlnExpression {
-    pub fn new(body: Expression) -> Self {
+    fn new(body: Expression) -> Self {
         Self {
             body: body,
         }
@@ -411,7 +411,7 @@ impl ExpressionTrait for FunctionCall {
     }
 }
 impl FunctionCall {
-    pub fn new(name: String, args: LinkedList<Expression>) -> Self {
+    fn new(name: String, args: LinkedList<Expression>) -> Self {
         Self {
             name: name,
             args: args,
