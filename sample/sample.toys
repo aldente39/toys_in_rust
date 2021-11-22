@@ -1,0 +1,10 @@
+define main() {
+    println(fact(5));
+}
+define fact(n) {
+    if (n<2) {
+        1;
+    } else {
+        n*fact(n-1);
+    }
+}

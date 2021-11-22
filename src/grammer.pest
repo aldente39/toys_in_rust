@@ -1,0 +1,29 @@
+program = { WHITESPACE* ~ topLevelDefinition* ~ WHITESPACE* }
+lines = { WHITESPACE* ~ line+  ~ WHITESPACE* }
+
+topLevelDefinition = { globalVariableDefinition | functionDefinition }
+functionDefinition = { "define" ~ identifier ~ "(" ~ (identifier ~ ("," ~ identifier)*)? ~ ")" ~ blockExpression }
+globalVariableDefinition = { "global" ~ identifier ~ "=" ~ expression ~ ";" }
+
+line = { println | whileExpression | ifExpression | assignment | expressionLine | blockExpression }
+println = { "println" ~ "(" ~ expression ~ ")" ~ ";" }
+ifExpression = { "if" ~ "(" ~ expression ~ ")" ~ line ~ ("else" ~ line)? }
+whileExpression = { "while" ~ "(" ~ expression ~ ")" ~ line }
+blockExpression = { "{" ~ line* ~ "}" }
+assignment = { identifier ~ "=" ~ expression ~ ";" }
+expressionLine = { expression ~ ";" }
+
+expression = { comparative }
+comparative = { additive ~ (comparative_verb ~ additive)* }
+additive = { multitive ~ (additive_verb ~ multitive)* }
+multitive = { primary ~ (multitive_verb ~ primary)* }
+primary = { "(" ~ expression ~ ")" | integer | functionCall | identifier }
+additive_verb = @{ "+" | "-" }
+multitive_verb = @{ "*" | "/" }
+comparative_verb = @{ "<=" | ">=" | "<" | ">" | "==" | "!=" }
+
+integer = @{ additive_verb? ~ ('1'..'9' ~ '0'..'9'* | "0") }
+functionCall = { identifier ~ "(" ~ (expression ~ ("," ~ expression)*)? ~ ")" }
+identifier = @{ (ASCII_ALPHA | "_") ~ (ASCII_ALPHA | ASCII_DIGIT | "_")* }
+
+WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
