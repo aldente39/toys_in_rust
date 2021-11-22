@@ -16,7 +16,7 @@ impl<'a> Interpreter<'a> {
             function_environment: HashMap::new(),
         }
     }
-    pub fn interpret(&self, expression: &Box<dyn ast::Expression>) -> i32 {
+    pub fn interpret(&self, expression: &ast::Expression) -> i32 {
         expression.eval(&self.variable_environment, &self.function_environment)
     }
     pub fn call_main(&mut self, program: &'a ast::Program) -> i32 {
@@ -41,7 +41,7 @@ mod tests {
 
     #[test]
     fn test_10_plus_20() {
-        let e: Box<dyn ast::Expression> = Box::new(ast::Ast::add(
+        let e: ast::Expression = Box::new(ast::Ast::add(
             Box::new(ast::Ast::integer(10)),
             Box::new(ast::Ast::integer(20))
         ));
@@ -50,7 +50,7 @@ mod tests {
     }
     #[test]
     fn test2() {
-        let e: Box<dyn ast::Expression> = Box::new(ast::Ast::add(
+        let e: ast::Expression = Box::new(ast::Ast::add(
             Box::new(ast::Ast::integer(10)),
             Box::new(ast::Ast::multiply(
                 Box::new(ast::Ast::integer(4)),
@@ -63,11 +63,11 @@ mod tests {
     #[test]
     fn test_assignment() {
         let i = Interpreter::new();
-        let a: Box<dyn ast::Expression> = Box::new(ast::Ast::assignment("a".to_string(), Box::new(ast::Ast::integer(10))));
+        let a: ast::Expression = Box::new(ast::Ast::assignment("a".to_string(), Box::new(ast::Ast::integer(10))));
         i.interpret(&a);
-        let b: Box<dyn ast::Expression> = Box::new(ast::Ast::assignment("b".to_string(), Box::new(ast::Ast::integer(20))));
+        let b: ast::Expression = Box::new(ast::Ast::assignment("b".to_string(), Box::new(ast::Ast::integer(20))));
         i.interpret(&b);
-        let e: Box<dyn ast::Expression> = Box::new(ast::Ast::add(
+        let e: ast::Expression = Box::new(ast::Ast::add(
             Box::new(ast::Ast::symbol("a".to_string())),
             Box::new(ast::Ast::symbol("b".to_string()))
         ));
@@ -77,9 +77,9 @@ mod tests {
     #[test]
     fn test_factorial() {
         let mut toplevels: LinkedList<Box<dyn ast::TopLevel>> = LinkedList::new();
-        let mut fact_args: LinkedList<Box<dyn ast::Expression>> = LinkedList::new();
+        let mut fact_args: LinkedList<ast::Expression> = LinkedList::new();
         fact_args.push_back(Box::new(ast::Ast::integer(5)));
-        let mut block_list: LinkedList<Box<dyn ast::Expression>> = LinkedList::new();
+        let mut block_list: LinkedList<ast::Expression> = LinkedList::new();
         block_list.push_back(
             Box::new(
                 ast::Ast::call("fact".to_string(), fact_args)
@@ -92,7 +92,7 @@ mod tests {
                 ast::Ast::block(block_list)
             )
         );
-        let mut inner_fact_args: LinkedList<Box<dyn ast::Expression>> = LinkedList::new();
+        let mut inner_fact_args: LinkedList<ast::Expression> = LinkedList::new();
         inner_fact_args.push_back(
             Box::new(
                 ast::Ast::subtract(
@@ -101,7 +101,7 @@ mod tests {
                 )
             )
         );
-        let mut block_list2: LinkedList<Box<dyn ast::Expression>> = LinkedList::new();
+        let mut block_list2: LinkedList<ast::Expression> = LinkedList::new();
         block_list2.push_back(
                 Box::new(ast::Ast::if_expr(
                     Box::new(ast::Ast::less_than(

@@ -6,73 +6,75 @@ use std::collections::LinkedList;
 use std::rc::Rc;
 use std::cell::RefCell;
 
+pub type Expression = Box<dyn ExpressionTrait>;
+
 pub struct Ast {}
 
 impl Ast {
-    pub fn add(lhs: Box<dyn Expression>, rhs:Box<dyn Expression>) -> BinaryExpression {
+    pub fn add(lhs: Expression, rhs:Expression) -> BinaryExpression {
         BinaryExpression::new(
             Operator::ADD,
             lhs,
             rhs
         )
     }
-    pub fn subtract(lhs: Box<dyn Expression>, rhs: Box<dyn Expression>) -> BinaryExpression {
+    pub fn subtract(lhs: Expression, rhs: Expression) -> BinaryExpression {
         BinaryExpression::new(
             Operator::SUBTRACT,
             lhs,
             rhs
         )
     }
-    pub fn multiply(lhs: Box<dyn Expression>, rhs: Box<dyn Expression>) -> BinaryExpression {
+    pub fn multiply(lhs: Expression, rhs: Expression) -> BinaryExpression {
         BinaryExpression::new(
             Operator::MULTIPLY,
             lhs,
             rhs
         )
     }
-    pub fn divide(lhs: Box<dyn Expression>, rhs: Box<dyn Expression>) -> BinaryExpression {
+    pub fn divide(lhs: Expression, rhs: Expression) -> BinaryExpression {
         BinaryExpression::new(
             Operator::DIVIDE,
             lhs,
             rhs
         )
     }
-    pub fn less_than(lhs: Box<dyn Expression>, rhs: Box<dyn Expression>) -> BinaryExpression {
+    pub fn less_than(lhs: Expression, rhs: Expression) -> BinaryExpression {
         BinaryExpression::new(
             Operator::LessThan,
             lhs,
             rhs
         )
     }
-    pub fn less_or_equal(lhs: Box<dyn Expression>, rhs: Box<dyn Expression>) -> BinaryExpression {
+    pub fn less_or_equal(lhs: Expression, rhs: Expression) -> BinaryExpression {
         BinaryExpression::new(
             Operator::LessOrEqual,
             lhs,
             rhs
         )
     }
-    pub fn greater_than(lhs: Box<dyn Expression>, rhs: Box<dyn Expression>) -> BinaryExpression {
+    pub fn greater_than(lhs: Expression, rhs: Expression) -> BinaryExpression {
         BinaryExpression::new(
             Operator::GreaterThan,
             lhs,
             rhs
         )
     }
-    pub fn greater_or_equal(lhs: Box<dyn Expression>, rhs: Box<dyn Expression>) -> BinaryExpression {
+    pub fn greater_or_equal(lhs: Expression, rhs: Expression) -> BinaryExpression {
         BinaryExpression::new(
             Operator::GreaterOrEqual,
             lhs,
             rhs
         )
     }
-    pub fn equal_equal(lhs: Box<dyn Expression>, rhs: Box<dyn Expression>) -> BinaryExpression {
+    pub fn equal_equal(lhs: Expression, rhs: Expression) -> BinaryExpression {
         BinaryExpression::new(
             Operator::EqualEqual,
             lhs,
             rhs
         )
     }
-    pub fn not_equal(lhs: Box<dyn Expression>, rhs: Box<dyn Expression>) -> BinaryExpression {
+    pub fn not_equal(lhs: Expression, rhs: Expression) -> BinaryExpression {
         BinaryExpression::new(
             Operator::NotEqual,
             lhs,
@@ -85,30 +87,30 @@ impl Ast {
     pub fn symbol(name: String) -> Identifier {
         Identifier::new(name)
     }
-    pub fn assignment(name: String, expression: Box<dyn Expression>) -> Assignment {
+    pub fn assignment(name: String, expression: Expression) -> Assignment {
         Assignment::new(name, expression)
     }
-    pub fn block(elements: LinkedList<Box<dyn Expression>>) -> BlockExpression {
+    pub fn block(elements: LinkedList<Expression>) -> BlockExpression {
         BlockExpression::new(elements)
     }
-    pub fn while_expr(condition: Box<dyn Expression>, body: Box<dyn Expression>) -> WhileExpression {
+    pub fn while_expr(condition: Expression, body: Expression) -> WhileExpression {
         WhileExpression::new(condition, body)
     }
-    pub fn if_expr(condition: Box<dyn Expression>, then_clause: Box<dyn Expression>, else_clause: Option<Box<dyn Expression>>) -> IfExpression {
+    pub fn if_expr(condition: Expression, then_clause: Expression, else_clause: Option<Expression>) -> IfExpression {
         IfExpression::new(condition, then_clause, else_clause)
     }
-    pub fn define_function(name: String, args: LinkedList<String>, body: Box<dyn Expression>) -> FunctionDefinition {
+    pub fn define_function(name: String, args: LinkedList<String>, body: Expression) -> FunctionDefinition {
         FunctionDefinition::new(name, args, body)
     }
-    pub fn call(name: String, args: LinkedList<Box<dyn Expression>>) -> FunctionCall {
+    pub fn call(name: String, args: LinkedList<Expression>) -> FunctionCall {
         FunctionCall::new(name, args)
     }
-    pub fn println(body: Box<dyn Expression>) -> PrintlnExpression {
+    pub fn println(body: Expression) -> PrintlnExpression {
         PrintlnExpression::new(body)
     }
 }
 
-pub trait Expression {
+pub trait ExpressionTrait {
     fn eval(
         &self,
         _variable_environment: &Rc<Environment>,
@@ -120,10 +122,10 @@ pub trait Expression {
 
 pub struct BinaryExpression {
     operator: Operator,
-    lhs: Box<dyn Expression>,
-    rhs: Box<dyn Expression>,
+    lhs: Expression,
+    rhs: Expression,
 }
-impl Expression for BinaryExpression {
+impl ExpressionTrait for BinaryExpression {
     fn eval(&self, v: &Rc<Environment>, f: &HashMap<String, &FunctionDefinition>) -> i32 {
         let lhs: i32 = self.lhs.eval(v, f);
         let rhs: i32 = self.rhs.eval(v, f);
@@ -142,7 +144,7 @@ impl Expression for BinaryExpression {
     }
 }
 impl BinaryExpression {
-    fn new(operator: Operator, lhs: Box<dyn Expression>, rhs: Box<dyn Expression>) -> Self {
+    fn new(operator: Operator, lhs: Expression, rhs: Expression) -> Self {
         Self {
             operator: operator,
             lhs: lhs,
@@ -154,7 +156,7 @@ impl BinaryExpression {
 pub struct IntegerLiteral {
     value: i32,
 }
-impl Expression for IntegerLiteral {
+impl ExpressionTrait for IntegerLiteral {
     fn eval(&self, _v: &Rc<Environment>, _f: &HashMap<String, &FunctionDefinition>) -> i32 {
         self.value
     }
@@ -169,9 +171,9 @@ impl IntegerLiteral {
 
 pub struct Assignment {
     name: String,
-    expression: Box<dyn Expression>,
+    expression: Expression,
 }
-impl Expression for Assignment {
+impl ExpressionTrait for Assignment {
     fn eval(&self, v: &Rc<Environment>, f: &HashMap<String, &FunctionDefinition>) -> i32 {
         let value = self.expression.eval(v, f);
         v.bindings.borrow_mut().insert(self.name.clone(), value);
@@ -179,7 +181,7 @@ impl Expression for Assignment {
     }
 }
 impl Assignment {
-    fn new(name: String, expression: Box<dyn Expression>) -> Self {
+    fn new(name: String, expression: Expression) -> Self {
         Self {
             name: name,
             expression: expression,
@@ -190,7 +192,7 @@ impl Assignment {
 pub struct Identifier {
     name: String,
 }
-impl Expression for Identifier {
+impl ExpressionTrait for Identifier {
     fn eval(&self, v: &Rc<Environment>, _f: &HashMap<String, &FunctionDefinition>) -> i32 {
         let bindings_opt = v.find_binding(&self.name);
         bindings_opt.unwrap().borrow().get(&self.name).unwrap().clone()
@@ -205,9 +207,9 @@ impl Identifier {
 }
 
 pub struct BlockExpression {
-    elements: LinkedList<Box<dyn Expression>>,
+    elements: LinkedList<Expression>,
 }
-impl Expression for BlockExpression {
+impl ExpressionTrait for BlockExpression {
     fn eval(&self, v: &Rc<Environment>, f: &HashMap<String, &FunctionDefinition>) -> i32 {
         let mut value = 0;
         for e in self.elements.iter() {
@@ -217,7 +219,7 @@ impl Expression for BlockExpression {
     }
 }
 impl BlockExpression {
-    pub fn new(elements: LinkedList<Box<dyn Expression>>) -> Self {
+    pub fn new(elements: LinkedList<Expression>) -> Self {
         Self {
             elements: elements,
         }
@@ -225,10 +227,10 @@ impl BlockExpression {
 }
 
 pub struct WhileExpression {
-    condition: Box<dyn Expression>,
-    body: Box<dyn Expression>,
+    condition: Expression,
+    body: Expression,
 }
-impl Expression for WhileExpression {
+impl ExpressionTrait for WhileExpression {
     fn eval(&self, v: &Rc<Environment>, f: &HashMap<String, &FunctionDefinition>) -> i32 {
         loop {
             let condition = self.condition.eval(v, f);
@@ -242,7 +244,7 @@ impl Expression for WhileExpression {
     }
 }
 impl WhileExpression {
-    pub fn new(condition: Box<dyn Expression>, body: Box<dyn Expression>) -> Self {
+    pub fn new(condition: Expression, body: Expression) -> Self {
         Self {
             condition: condition,
             body: body,
@@ -251,11 +253,11 @@ impl WhileExpression {
 }
 
 pub struct IfExpression {
-    condition: Box<dyn Expression>,
-    then_clause: Box<dyn Expression>,
-    else_clause: Option<Box<dyn Expression>>,
+    condition: Expression,
+    then_clause: Expression,
+    else_clause: Option<Expression>,
 }
-impl Expression for IfExpression {
+impl ExpressionTrait for IfExpression {
     fn eval(&self, v: &Rc<Environment>, f: &HashMap<String, &FunctionDefinition>) -> i32 {
         let condition: i32 = self.condition.eval(v, f);
         if condition != 0 {
@@ -269,7 +271,7 @@ impl Expression for IfExpression {
     }
 }
 impl IfExpression {
-    pub fn new(condition: Box<dyn Expression>, then_clause: Box<dyn Expression>, else_clause: Option<Box<dyn Expression>>) -> Self {
+    pub fn new(condition: Expression, then_clause: Expression, else_clause: Option<Expression>) -> Self {
         Self {
             condition: condition,
             then_clause: then_clause,
@@ -279,16 +281,16 @@ impl IfExpression {
 }
 
 pub struct PrintlnExpression {
-    body: Box<dyn Expression>
+    body: Expression
 }
-impl Expression for PrintlnExpression {
+impl ExpressionTrait for PrintlnExpression {
     fn eval(&self, v: &Rc<Environment>, f: &HashMap<String, &FunctionDefinition>) -> i32 {
         println!("{}", self.body.eval(v, f));
         0
     }
 }
 impl PrintlnExpression {
-    pub fn new(body: Box<dyn Expression>) -> Self {
+    pub fn new(body: Expression) -> Self {
         Self {
             body: body,
         }
@@ -299,7 +301,7 @@ pub struct Environment {
     bindings: Rc<RefCell<HashMap<String, i32>>>,
     next: Option<Rc<Environment>>, //一つ上の呼び出し元の環境
 }
-impl Expression for Environment {
+impl ExpressionTrait for Environment {
     fn eval(&self, _v: &Rc<Environment>, _f: &HashMap<String, &FunctionDefinition>) -> i32 {
         0
     }
@@ -341,7 +343,7 @@ pub trait TopLevel {
 pub struct FunctionDefinition {
     pub name: String,
     args: LinkedList<String>,
-    pub body: Box<dyn Expression>,
+    pub body: Expression,
 }
 impl TopLevel for FunctionDefinition {
     fn eval<'a>(&'a self, _v: &Rc<Environment>, f: &mut HashMap<String,  &'a FunctionDefinition>) -> i32 {
@@ -353,7 +355,7 @@ impl TopLevel for FunctionDefinition {
     }
 }
 impl FunctionDefinition {
-    pub fn new(name: String, args: LinkedList<String>, body: Box<dyn Expression>) -> Self {
+    pub fn new(name: String, args: LinkedList<String>, body: Expression) -> Self {
         Self {
             name: name,
             args: args,
@@ -364,7 +366,7 @@ impl FunctionDefinition {
 
 pub struct GlobalVariableDefinition {
     name: String,
-    body: Box<dyn Expression>,
+    body: Expression,
 }
 impl TopLevel for GlobalVariableDefinition {
     fn eval(&self, v: &Rc<Environment>, f: &mut HashMap<String, &FunctionDefinition>) -> i32 {
@@ -376,7 +378,7 @@ impl TopLevel for GlobalVariableDefinition {
     }
 }
 impl GlobalVariableDefinition {
-    pub fn new(name: String, body: Box<dyn Expression>) -> Self {
+    pub fn new(name: String, body: Expression) -> Self {
         Self {
             name: name,
             body: body,
@@ -386,9 +388,9 @@ impl GlobalVariableDefinition {
 
 pub struct FunctionCall {
     name: String,
-    args: LinkedList<Box<dyn Expression>>,
+    args: LinkedList<Expression>,
 }
-impl Expression for FunctionCall {
+impl ExpressionTrait for FunctionCall {
     fn eval(&self, v: &Rc<Environment>, f: &HashMap<String, &FunctionDefinition>) -> i32 {
         let definition = f.get(&self.name);
         match definition {
@@ -409,7 +411,7 @@ impl Expression for FunctionCall {
     }
 }
 impl FunctionCall {
-    pub fn new(name: String, args: LinkedList<Box<dyn Expression>>) -> Self {
+    pub fn new(name: String, args: LinkedList<Expression>) -> Self {
         Self {
             name: name,
             args: args,

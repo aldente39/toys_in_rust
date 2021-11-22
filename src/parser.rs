@@ -21,7 +21,7 @@ pub fn parse(contents: &String) -> ast::Program {
     ast::Program { definitions: toplevels }
 }
 
-pub fn parse_lines(contents: &String) -> LinkedList<Box<dyn ast::Expression>> {
+pub fn parse_lines(contents: &String) -> LinkedList<ast::Expression> {
     let mut pairs = ToysParser::parse(Rule::lines, contents).unwrap_or_else(|e| panic!("{}", e));
     let mut lines = LinkedList::new();
     let pair = pairs.next().unwrap();
@@ -61,7 +61,7 @@ fn construct_toplevel_ast(pair: pest::iterators::Pair<Rule>) -> Box<dyn ast::Top
     }
 }
 
-fn construct_expression_ast(pair: pest::iterators::Pair<Rule>) -> Box<dyn ast::Expression> {
+fn construct_expression_ast(pair: pest::iterators::Pair<Rule>) -> ast::Expression {
     match pair.as_rule() {
         Rule::line => {
             construct_expression_ast(pair.into_inner().next().unwrap())
@@ -138,7 +138,7 @@ fn construct_expression_ast(pair: pest::iterators::Pair<Rule>) -> Box<dyn ast::E
         },
         Rule::multitive => {
             let mut tmp = pair.into_inner();
-            let mut lhs: Box<dyn ast::Expression> = construct_expression_ast(tmp.next().unwrap());
+            let mut lhs: ast::Expression = construct_expression_ast(tmp.next().unwrap());
             loop{
                 match tmp.next() {
                     Some(operator) => {
