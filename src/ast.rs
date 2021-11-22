@@ -196,7 +196,9 @@ pub struct Identifier {
 impl ExpressionTrait for Identifier {
     fn eval(&self, v: &Rc<Environment>, _f: &HashMap<String, &FunctionDefinition>) -> i32 {
         let bindings_opt = v.find_binding(&self.name);
-        bindings_opt.unwrap().borrow().get(&self.name).unwrap().clone()
+        bindings_opt
+            .expect(&format!("undefinend variable: {}", &self.name))
+            .borrow().get(&self.name).unwrap().clone()
     }
 }
 impl Identifier {
