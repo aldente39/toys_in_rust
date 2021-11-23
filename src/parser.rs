@@ -87,6 +87,43 @@ fn construct_expression_ast(pair: pest::iterators::Pair<Rule>) -> ast::Expressio
             let elements = tmp.map(|x| construct_expression_ast(x)).collect();
             ast::Ast::block(elements)
         },
+        Rule::forInExpression => {
+            let mut tmp = pair.into_inner();
+            let loop_variable = tmp.next().unwrap();
+            let from = tmp.next().unwrap();
+            let to = tmp.next().unwrap();
+            let body = tmp.next().unwrap();
+            let mut block: LinkedList<ast::Expression> = LinkedList::new();
+            let mut inner_block: LinkedList<ast::Expression> = LinkedList::new();
+            inner_block.push_back(
+                construct_expression_ast(body)
+            );
+            inner_block.push_back(
+                ast::Ast::assignment(
+                    loop_variable.as_str().to_string(),
+                    ast::Ast::add(
+                        ast::Ast::symbol(loop_variable.as_str().to_string()),
+                        ast::Ast::integer(1)
+                    )
+                )
+            );
+            block.push_back(
+                ast::Ast::assignment(
+                    loop_variable.as_str().to_string(),
+                    construct_expression_ast(from)
+                )
+            );
+            block.push_back(
+                ast::Ast::while_expr(
+                    ast::Ast::less_or_equal(
+                        ast::Ast::symbol(loop_variable.as_str().to_string()),
+                        construct_expression_ast(to)
+                    ),
+                    ast::Ast::block(inner_block)
+                )
+            );
+            ast::Ast::block(block)
+        },
         Rule::assignment => {
             let mut tmp = pair.into_inner();
             let name = tmp.next().unwrap().as_str().to_string();

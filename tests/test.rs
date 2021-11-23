@@ -51,6 +51,17 @@ mod tests {
                 a = 0;
             }
         "#, 1),
+        case("test_for_in", r#"
+            for (i in 1 to 10) {
+                i = i + 1;
+            }
+            i;
+        "#, 11),
+        case("test_for_in2", r#"
+            x = 20;
+            for (i in 20-15 to 2*5*2) x = x + 1;
+            x;
+        "#, 36),
         ::trace
     )]
     fn test_lines(name: String, input: String, expected: i32) {

@@ -5,11 +5,12 @@ topLevelDefinition = { globalVariableDefinition | functionDefinition }
 functionDefinition = { "define" ~ identifier ~ "(" ~ (identifier ~ ("," ~ identifier)*)? ~ ")" ~ blockExpression }
 globalVariableDefinition = { "global" ~ identifier ~ "=" ~ expression ~ ";" }
 
-line = { println | whileExpression | ifExpression | assignment | expressionLine | blockExpression }
+line = { println | whileExpression | ifExpression | assignment | expressionLine | blockExpression | forInExpression }
 println = { "println" ~ "(" ~ expression ~ ")" ~ ";" }
 ifExpression = { "if" ~ "(" ~ expression ~ ")" ~ line ~ ("else" ~ line)? }
 whileExpression = { "while" ~ "(" ~ expression ~ ")" ~ line }
 blockExpression = { "{" ~ line* ~ "}" }
+forInExpression = { "for" ~ "(" ~ identifier ~ "in" ~ expression ~ "to"  ~ expression ~ ")" ~ line }
 assignment = { identifier ~ "=" ~ expression ~ ";" }
 expressionLine = { expression ~ ";" }
 
