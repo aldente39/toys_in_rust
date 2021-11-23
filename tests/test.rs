@@ -130,6 +130,22 @@ mod tests {
                 n;
             }
         "#, 720),
+        case("test_labelled", r#"
+            define power(n) {
+                n * n;
+            }
+            define main() {
+                power[n = 6];
+            }
+        "#, 36),
+        case("test_labelled2", r#"
+            define mul(n, m) {
+                n * m;
+            }
+            define main() {
+                mul[n = 6, m = 21];
+            }
+        "#, 126),
         ::trace
     )]
     fn test_program(name: String, input: String, expected: i32) {

@@ -18,13 +18,15 @@ expression = { comparative }
 comparative = { additive ~ (comparative_verb ~ additive)* }
 additive = { multitive ~ (additive_verb ~ multitive)* }
 multitive = { primary ~ (multitive_verb ~ primary)* }
-primary = { "(" ~ expression ~ ")" | integer | functionCall | identifier }
+primary = { "(" ~ expression ~ ")" | integer | functionCall | labelledCall | identifier }
 additive_verb = @{ "+" | "-" }
 multitive_verb = @{ "*" | "/" }
 comparative_verb = @{ "<=" | ">=" | "<" | ">" | "==" | "!=" }
 
 integer = @{ additive_verb? ~ ('1'..'9' ~ '0'..'9'* | "0") }
 functionCall = { identifier ~ "(" ~ (expression ~ ("," ~ expression)*)? ~ ")" }
+labelledParameter = { identifier ~ "=" ~ expression }
+labelledCall = { identifier ~ "[" ~ (labelledParameter ~ ("," ~ labelledParameter)*)? ~ "]" }
 identifier = @{ (ASCII_ALPHA | "_") ~ (ASCII_ALPHA | ASCII_DIGIT | "_")* }
 
 WHITESPACE = _{ " " | "\t" | "\r" | "\n" }

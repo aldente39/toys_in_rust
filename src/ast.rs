@@ -106,6 +106,12 @@ impl Ast {
     pub fn call(name: String, args: LinkedList<Expression>) -> Box<FunctionCall> {
         Box::new(FunctionCall::new(name, args))
     }
+    pub fn labelled_parameter(name: String, parameter: Expression) -> Box<LabelledParameter> {
+        Box::new(LabelledParameter::new(name, parameter))
+    }
+    pub fn labelled_call(name: String, args: LinkedList<LabelledParameter>) -> Box<LabelledCall> {
+        Box::new(LabelledCall::new(name, args))
+    }
     pub fn println(body: Expression) -> Box<PrintlnExpression> {
         Box::new(PrintlnExpression::new(body))
     }
@@ -409,12 +415,64 @@ impl ExpressionTrait for FunctionCall {
                 let result = body.eval(&new_environment(v), f);
                 result
             },
-            None => panic!("function not found."),
+            None => panic!("function {} not found.", self.name),
         }
     }
 }
 impl FunctionCall {
     fn new(name: String, args: LinkedList<Expression>) -> Self {
+        Self {
+            name: name,
+            args: args,
+        }
+    }
+}
+
+pub struct LabelledParameter {
+    name: String,
+    parameter: Expression,
+}
+impl ExpressionTrait for LabelledParameter {}
+impl LabelledParameter {
+    fn new(name: String, parameter: Expression) -> Self {
+        Self {
+            name: name,
+            parameter: parameter,
+        }
+    }    
+}
+
+pub struct LabelledCall {
+    name: String,
+    args: LinkedList<LabelledParameter>,
+}
+impl ExpressionTrait for LabelledCall {
+    fn eval(&self, v: &Rc<Environment>, f: &HashMap<String, &FunctionDefinition>) -> i32 {
+        let definition = f.get(&self.name);
+        match definition {
+            Some(x) => {
+                let labels = &self.args;
+                let mut mapping: HashMap<&String, &Expression> = HashMap::new();
+                labels.iter().for_each(|x| { mapping.insert(&x.name, &x.parameter); });
+
+                let formal_params = &x.args;
+                let mut actual_params = LinkedList::new();
+                formal_params.iter().for_each(|x| actual_params.push_back(mapping.get(x).unwrap()));
+                let body = &x.body;
+                let values: LinkedList<i32> = actual_params.iter().map(|x| x.eval(v, f)).collect();
+                let mut values_iter = values.into_iter();
+                for formal_param_name in formal_params {
+                    v.bindings.borrow_mut().insert(formal_param_name.clone(), values_iter.next().unwrap());
+                }
+                let result = body.eval(&new_environment(v), f);
+                result
+            },
+            None => panic!("function {} not found.", self.name),
+        }
+    }
+}
+impl LabelledCall {
+    fn new(name: String, args: LinkedList<LabelledParameter>) -> Self {
         Self {
             name: name,
             args: args,

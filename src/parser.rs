@@ -203,6 +203,23 @@ fn construct_expression_ast(pair: pest::iterators::Pair<Rule>) -> ast::Expressio
             let args = tmp.map(|x| construct_expression_ast(x)).collect();
             ast::Ast::call(name.to_string(), args)
         },
+        Rule::labelledParameter => {
+            let mut tmp = pair.into_inner();
+            let name = tmp.next().unwrap().as_str().to_string();
+            let parameter = construct_expression_ast(tmp.next().unwrap());
+            ast::Ast::labelled_parameter(name, parameter)
+        },
+        Rule::labelledCall => {
+            let mut tmp = pair.into_inner();
+            let name = tmp.next().unwrap().as_str();
+            let args = tmp.map(|x| {
+                let mut y = x.into_inner();
+                let name2 = y.next().unwrap().as_str().to_string();
+                let parameter = construct_expression_ast(y.next().unwrap());
+                *ast::Ast::labelled_parameter(name2, parameter)
+            }).collect();
+            ast::Ast::labelled_call(name.to_string(), args)
+        },
         Rule::identifier => {
             ast::Ast::symbol(pair.as_str().to_string())
         },
