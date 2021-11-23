@@ -328,8 +328,7 @@ impl Environment {
             _ => {
                 match &self.next {
                     Some(y) => {
-                        let tmp = y.find_binding(name);
-                        tmp
+                        y.find_binding(name)
                     },
                     None => None,
                 }

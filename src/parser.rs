@@ -13,8 +13,8 @@ pub fn parse(contents: &String) -> ast::Program {
     let pair = pairs.next().unwrap();
     match pair.as_rule() {
         Rule::program => {
-            let tmp = pair.into_inner();
-            tmp.for_each(|x| toplevels.push_back(construct_toplevel_ast(x)));
+            let inner_pairs = pair.into_inner();
+            inner_pairs.for_each(|x| toplevels.push_back(construct_toplevel_ast(x)));
         },
         _ => unreachable!(),
     }
@@ -42,9 +42,9 @@ fn construct_toplevel_ast(pair: pest::iterators::Pair<Rule>) -> ast::TopLevel {
             construct_toplevel_ast(pair.into_inner().next().unwrap())
         },
         Rule::functionDefinition => {
-            let mut tmp = pair.into_inner();
-            let name = tmp.next().unwrap().as_str().to_string();
-            let (args, mut body): (LinkedList<pest::iterators::Pair<Rule>>, LinkedList<pest::iterators::Pair<Rule>>) = tmp.partition(|x| x.as_rule() == Rule::identifier);
+            let mut inner_pairs = pair.into_inner();
+            let name = inner_pairs.next().unwrap().as_str().to_string();
+            let (args, mut body): (LinkedList<pest::iterators::Pair<Rule>>, LinkedList<pest::iterators::Pair<Rule>>) = inner_pairs.partition(|x| x.as_rule() == Rule::identifier);
             ast::Ast::define_function(
                 name,
                 args.into_iter().map(|x| x.as_str().to_string()).collect(),
@@ -52,9 +52,9 @@ fn construct_toplevel_ast(pair: pest::iterators::Pair<Rule>) -> ast::TopLevel {
             )
         },
         Rule::globalVariableDefinition => {
-            let mut tmp = pair.into_inner();
-            let name = tmp.next().unwrap().as_str().to_string();
-            let expr = construct_expression_ast(tmp.next().unwrap());
+            let mut inner_pairs = pair.into_inner();
+            let name = inner_pairs.next().unwrap().as_str().to_string();
+            let expr = construct_expression_ast(inner_pairs.next().unwrap());
             Box::new(ast::GlobalVariableDefinition::new(name, expr))
         },
         _ => unreachable!(),
@@ -67,32 +67,32 @@ fn construct_expression_ast(pair: pest::iterators::Pair<Rule>) -> ast::Expressio
             construct_expression_ast(pair.into_inner().next().unwrap())
         },
         Rule::ifExpression => {
-            let mut tmp = pair.into_inner();
-            let condition = construct_expression_ast(tmp.next().unwrap());
-            let then_clause = construct_expression_ast(tmp.next().unwrap());
-            let else_clause =  match tmp.next() {
+            let mut inner_pairs = pair.into_inner();
+            let condition = construct_expression_ast(inner_pairs.next().unwrap());
+            let then_clause = construct_expression_ast(inner_pairs.next().unwrap());
+            let else_clause =  match inner_pairs.next() {
                 Some(x) => Some(construct_expression_ast(x)),
                 None => None,
             };
             ast::Ast::if_expr(condition, then_clause, else_clause)
         },
         Rule::whileExpression => {
-            let mut tmp = pair.into_inner();
-            let conditon = construct_expression_ast(tmp.next().unwrap());
-            let body = construct_expression_ast(tmp.next().unwrap());
+            let mut inner_pairs = pair.into_inner();
+            let conditon = construct_expression_ast(inner_pairs.next().unwrap());
+            let body = construct_expression_ast(inner_pairs.next().unwrap());
             ast::Ast::while_expr(conditon, body)
         },
         Rule::blockExpression => {
-            let tmp = pair.into_inner();
-            let elements = tmp.map(|x| construct_expression_ast(x)).collect();
+            let inner_pairs = pair.into_inner();
+            let elements = inner_pairs.map(|x| construct_expression_ast(x)).collect();
             ast::Ast::block(elements)
         },
         Rule::forInExpression => {
-            let mut tmp = pair.into_inner();
-            let loop_variable = tmp.next().unwrap();
-            let from = tmp.next().unwrap();
-            let to = tmp.next().unwrap();
-            let body = tmp.next().unwrap();
+            let mut inner_pairs = pair.into_inner();
+            let loop_variable = inner_pairs.next().unwrap();
+            let from = inner_pairs.next().unwrap();
+            let to = inner_pairs.next().unwrap();
+            let body = inner_pairs.next().unwrap();
             let mut block: LinkedList<ast::Expression> = LinkedList::new();
             let mut inner_block: LinkedList<ast::Expression> = LinkedList::new();
             inner_block.push_back(
@@ -125,9 +125,9 @@ fn construct_expression_ast(pair: pest::iterators::Pair<Rule>) -> ast::Expressio
             ast::Ast::block(block)
         },
         Rule::assignment => {
-            let mut tmp = pair.into_inner();
-            let name = tmp.next().unwrap().as_str().to_string();
-            let expr = construct_expression_ast(tmp.next().unwrap());
+            let mut inner_pairs = pair.into_inner();
+            let name = inner_pairs.next().unwrap().as_str().to_string();
+            let expr = construct_expression_ast(inner_pairs.next().unwrap());
             ast::Ast::assignment(name, expr)
         },
         Rule::expressionLine => {
@@ -137,11 +137,11 @@ fn construct_expression_ast(pair: pest::iterators::Pair<Rule>) -> ast::Expressio
             construct_expression_ast(pair.into_inner().next().unwrap())
         },
         Rule::comparative => {
-            let mut tmp = pair.into_inner();
-            let lhs = construct_expression_ast(tmp.next().unwrap());
-            match tmp.next() {
+            let mut inner_pairs = pair.into_inner();
+            let lhs = construct_expression_ast(inner_pairs.next().unwrap());
+            match inner_pairs.next() {
                 Some(operator) => {
-                    let rhs = construct_expression_ast(tmp.next().unwrap());
+                    let rhs = construct_expression_ast(inner_pairs.next().unwrap());
                     match operator.as_str() {
                         ">=" => ast::Ast::greater_or_equal(lhs, rhs),
                         "<=" => ast::Ast::less_or_equal(lhs, rhs),
@@ -156,12 +156,12 @@ fn construct_expression_ast(pair: pest::iterators::Pair<Rule>) -> ast::Expressio
             }
         },
         Rule::additive => {
-            let mut tmp = pair.into_inner();
-            let mut lhs = construct_expression_ast(tmp.next().unwrap());
+            let mut inner_pairs = pair.into_inner();
+            let mut lhs = construct_expression_ast(inner_pairs.next().unwrap());
             loop {
-                match tmp.next() {
+                match inner_pairs.next() {
                     Some(operator) => {
-                        let rhs = construct_expression_ast(tmp.next().unwrap());
+                        let rhs = construct_expression_ast(inner_pairs.next().unwrap());
                         match operator.as_str() {
                             "+" => lhs = ast::Ast::add(lhs, rhs),
                             "-" => lhs = ast::Ast::subtract(lhs, rhs),
@@ -174,12 +174,12 @@ fn construct_expression_ast(pair: pest::iterators::Pair<Rule>) -> ast::Expressio
             lhs
         },
         Rule::multitive => {
-            let mut tmp = pair.into_inner();
-            let mut lhs: ast::Expression = construct_expression_ast(tmp.next().unwrap());
+            let mut inner_pairs = pair.into_inner();
+            let mut lhs: ast::Expression = construct_expression_ast(inner_pairs.next().unwrap());
             loop{
-                match tmp.next() {
+                match inner_pairs.next() {
                     Some(operator) => {
-                        let rhs = construct_expression_ast(tmp.next().unwrap());
+                        let rhs = construct_expression_ast(inner_pairs.next().unwrap());
                         match operator.as_str() {
                             "*" => lhs = ast::Ast::multiply(lhs, rhs),
                             "/" => lhs = ast::Ast::divide(lhs, rhs),
@@ -198,21 +198,21 @@ fn construct_expression_ast(pair: pest::iterators::Pair<Rule>) -> ast::Expressio
             ast::Ast::integer(pair.as_str().parse().unwrap())
         },
         Rule::functionCall => {
-            let mut tmp = pair.into_inner();
-            let name = tmp.next().unwrap().as_str();
-            let args = tmp.map(|x| construct_expression_ast(x)).collect();
+            let mut inner_pairs = pair.into_inner();
+            let name = inner_pairs.next().unwrap().as_str();
+            let args = inner_pairs.map(|x| construct_expression_ast(x)).collect();
             ast::Ast::call(name.to_string(), args)
         },
         Rule::labelledParameter => {
-            let mut tmp = pair.into_inner();
-            let name = tmp.next().unwrap().as_str().to_string();
-            let parameter = construct_expression_ast(tmp.next().unwrap());
+            let mut inner_pairs = pair.into_inner();
+            let name = inner_pairs.next().unwrap().as_str().to_string();
+            let parameter = construct_expression_ast(inner_pairs.next().unwrap());
             ast::Ast::labelled_parameter(name, parameter)
         },
         Rule::labelledCall => {
-            let mut tmp = pair.into_inner();
-            let name = tmp.next().unwrap().as_str();
-            let args = tmp.map(|x| {
+            let mut inner_pairs = pair.into_inner();
+            let name = inner_pairs.next().unwrap().as_str();
+            let args = inner_pairs.map(|x| {
                 let mut y = x.into_inner();
                 let name2 = y.next().unwrap().as_str().to_string();
                 let parameter = construct_expression_ast(y.next().unwrap());
@@ -224,8 +224,8 @@ fn construct_expression_ast(pair: pest::iterators::Pair<Rule>) -> ast::Expressio
             ast::Ast::symbol(pair.as_str().to_string())
         },
         Rule::println => {
-            let mut tmp = pair.into_inner();
-            ast::Ast::println(construct_expression_ast(tmp.next().unwrap()))
+            let mut inner_pairs = pair.into_inner();
+            ast::Ast::println(construct_expression_ast(inner_pairs.next().unwrap()))
         },
         _ => unreachable!(),
     }
